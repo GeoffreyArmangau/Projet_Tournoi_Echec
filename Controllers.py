@@ -13,7 +13,7 @@ class Controllers:
         tournament.players.append(player)
         return tournament
 
-    #===========================tournament controller===========================#
+        #===========================tournament controller===========================#
     def create_tournament(self, name, location, beginning_date, end_date, number_of_rounds=4, description=""):
         tournament = Tournament(
             name, 
@@ -113,9 +113,11 @@ class Controllers:
 
         #creer la première ronde
         first_round = Round(round_number=1)
-        for i in range (0, len(tournament.players), 2):
-            player_1 = tournament.players[i]
-            player_2 = tournament.players[i + 1]
+        shuffled_players = tournament.players.copy()
+        random.shuffle(shuffled_players)
+        for i in range (0, len(shuffled_players), 2):
+            player_1 = shuffled_players[i]
+            player_2 = shuffled_players[i + 1]
             match = Match(player_1, player_2)
             self.add_match_to_round(first_round, match)
         
@@ -124,6 +126,18 @@ class Controllers:
         tournament.actual_round += 1
 
         return first_round
+    
+    def get_played_matches(self, tournament):
+        """
+        Retourne les appariement déjà joués
+        """
+        played_matches = set()
+        for round_obj in tournament.rounds:  # Parcourir toutes les rondes
+            for match in round_obj.matches:  # Parcourir tous les matchs
+                # Ajouter la paire (dans les deux sens pour éviter les problèmes d'ordre)
+                played_matches.add((match.player1, match.player2))
+                played_matches.add((match.player2, match.player1))
+        return played_matches
     
     def next_round(self, tournament):
         """
@@ -147,21 +161,49 @@ class Controllers:
                 total_player_scores[match.player1] = total_player_scores.get(match.player1, 0) + match.score1
                 total_player_scores[match.player2] = total_player_scores.get(match.player2, 0) + match.score2
         
-        #tri des joueurs avant la nouvelle ronde
+        #tri des joueurs avant la nouvelle ronde, randomisation en cas d'égalité
         def get_score(player_score_pair):
-            return player_score_pair[1]  # Retourne le score
+            return (player_score_pair[1], random.random())  
 
         sorted_players = sorted(total_player_scores.items(), key=get_score, reverse=True)
-
-        new_round = Round(round_number=1+tournament.actual_round)
-        for i in range(0, len(sorted_players), 2):
-            player_1 = sorted_players[i][0]     
-            player_2 = sorted_players[i+1][0] 
-            match = Match(player_1, player_2)
-            self.add_match_to_round(new_round, match)
         
+        new_round = Round(round_number=1+tournament.actual_round)
+        played_matches = self.get_played_matches(tournament)
+        
+        #récupérer la liste des joueurs classé
+        available_player = []
+        for player, score in sorted_players:
+            available_player.append(player)
+
+        #appariement en évitant une rencontre double
+        while len(available_player) >= 2:
+            player_1 = available_player[0]
+            for player in available_player[1:]:
+                player_2 = player
+                if (player_1, player_2) not in played_matches:             
+                    match = Match(player_1, player_2)
+                    self.add_match_to_round(new_round, match)
+                    available_player.remove(player_1)
+                    available_player.remove(player_2)
+                    break
+            else:
+                raise ValueError ("aucun match de disponible")
+     
         #ajouter la ronde au tournoi
         tournament.rounds.append(new_round)
         tournament.actual_round += 1
         
         return new_round
+
+    def get_round_result(self):
+        """
+        Retourne le résultats du tour sous forme de dictionnaire
+        """
+#===========================reports controller===========================#
+
+    def get_player_report(self, tournament):
+        """
+        Rapport sur les joueurs du tournoi
+        """
+
+        
