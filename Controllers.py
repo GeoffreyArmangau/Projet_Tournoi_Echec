@@ -20,8 +20,8 @@ class Controllers:
             location, 
             beginning_date, 
             end_date, 
-            number_of_rounds, 
-            description
+            max_rounds=number_of_rounds, 
+            description=description
         )
         return tournament
     
@@ -96,7 +96,7 @@ class Controllers:
         if round_obj.is_completed:
             raise ValueError ("Impossible d'ajouter un match à un tour terminé")
         
-        round_obj.match.append(match)
+        round_obj.matches.append(match)
         return round_obj
        
     def create_first_round(self, tournament):
@@ -120,7 +120,7 @@ class Controllers:
             self.add_match_to_round(first_round, match)
         
         #ajouter la ronde au tournoi
-        tournament.laps.append(first_round)
+        tournament.rounds.append(first_round)
         tournament.actual_round += 1
 
         return first_round
@@ -161,5 +161,7 @@ class Controllers:
             self.add_match_to_round(new_round, match)
         
         #ajouter la ronde au tournoi
-        tournament.laps.append(new_round)
+        tournament.rounds.append(new_round)
         tournament.actual_round += 1
+        
+        return new_round

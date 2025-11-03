@@ -1,5 +1,5 @@
 class Round:
-    def __init__(self, round_number = int, matches=None):
+    def __init__(self, round_number = 1, matches=None):
         """
         Initialise un tour.
                
