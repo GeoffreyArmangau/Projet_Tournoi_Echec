@@ -119,7 +119,14 @@ class Controllers:
         """
         Gère les rondes à partir de la manche 2.
         """
-
         
-  
-       
+        if tournament.actual_round > tournament.max_rounds:
+            raise ValueError ("Le nombre de round max est atteint")
+
+        if not tournament.rounds == []:
+            last_round = tournament.rounds[-1]
+
+            for match in last_round.matches:
+                if match.score1 == 0 and match.score2 == 0:
+                    raise ValueError ("les matchs de la dernière ronde ne sont pas terminés")
+        
