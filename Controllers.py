@@ -64,6 +64,16 @@ class Controllers:
         """
         return self.score_1 != 0 or self.score_2 != 0
     
+    def match_to_dictionary(self):
+        return {
+            "player_1_name" : self.player1.last_name,
+            "player_1_ID": self.player1.identification,
+            "player_1_score": self.score1,
+            "player_2_name" : self.player2.last_name,
+            "player_2_ID": self.player2.identification,
+            "player_2_score": self.score2
+        }
+    
     def __str__(self):
         """"
         Représentation textuelle du match
@@ -130,3 +140,26 @@ class Controllers:
                 if match.score1 == 0 and match.score2 == 0:
                     raise ValueError ("les matchs de la dernière ronde ne sont pas terminés")
         
+        #récupération des scores avant tri
+        total_player_scores = {}
+        for round_obj in tournament.rounds:
+            for match in round_obj.matches:
+                total_player_scores[match.player1] = total_player_scores.get(match.player1, 0) + match.score1
+                total_player_scores[match.player2] = total_player_scores.get(match.player2, 0) + match.score2
+        
+        #tri des joueurs avant la nouvelle ronde
+        def get_score(player_score_pair):
+            return player_score_pair[1]  # Retourne le score
+
+        sorted_players = sorted(total_player_scores.items(), key=get_score, reverse=True)
+
+        new_round = Round(round_number=1+tournament.actual_round)
+        for i in range(0, len(sorted_players), 2):
+            player_1 = sorted_players[i][0]     
+            player_2 = sorted_players[i+1][0] 
+            match = Match(player_1, player_2)
+            self.add_match_to_round(new_round, match)
+        
+        #ajouter la ronde au tournoi
+        tournament.laps.append(new_round)
+        tournament.actual_round += 1
