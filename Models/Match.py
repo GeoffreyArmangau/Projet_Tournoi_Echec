@@ -20,4 +20,16 @@ class Match:
         """
         return ([self.player1, self.score1], [self.player2, self.score2])
     
+    def Match_Dictionary(self):
+        """
+        Retourne le match sous forme de dictionnaire pour JSON
+        """
+        return {
+            "player1_id": self.player1.identification,
+            "player1_name": f"{self.player1.first_name} {self.player1.last_name}",
+            "player2_id": self.player2.identification,
+            "player2_name": f"{self.player2.first_name} {self.player2.last_name}",
+            "score1": self.score1,
+            "score2": self.score2
+        }
    

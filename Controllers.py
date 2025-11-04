@@ -7,8 +7,36 @@ import random
 from datetime import datetime
 
 class Controllers:
+    def __init__(self):
+        """Initialise les listes pour stocker les données"""
+        self.players = []
+        self.tournaments = []
+        self.rounds = []
 
     #===========================player controller===========================#
+    def create_player_simple(self, first_name, last_name, birth_date, national_id):
+        """Crée un nouveau joueur avec la logique métier"""
+        try:
+            # Validation des champs vides
+            if not all([first_name, last_name, birth_date, national_id]):
+                return False, "Tous les champs sont obligatoires !"
+            
+            # Logique métier : calculer l'âge automatiquement
+            current_year = datetime.now().year
+            birth_year = int(birth_date.split('-')[0])
+            age = current_year - birth_year
+            
+            # Créer le joueur
+            player = Player(first_name, last_name, birth_date, age, national_id)
+            
+            # Stocker le joueur dans la liste
+            self.players.append(player)
+            
+            return True, f"Joueur {first_name} {last_name} créé avec succès !"
+            
+        except Exception as e:
+            return False, f"Erreur lors de la création: {e}"
+
     def add_player_to_tournament(self, tournament, player):
         tournament.players.append(player)
         return tournament
@@ -201,9 +229,264 @@ class Controllers:
         """
 #===========================reports controller===========================#
 
-    def get_player_report(self, tournament):
-        """
-        Rapport sur les joueurs du tournoi
-        """
-
+    def get_tournament_player_report(self, tournament):
+        """Rapport sur les joueurs du tournoi"""
+        player_list = list(tournament.players)
+        player_list.sort(key=lambda p: (p.last_name, p.first_name))
         
+        player_reports = []
+        
+        for player in player_list:
+            player_dict = {
+                "Nom": player.last_name,
+                "Prénom": player.first_name,
+                "Date de naissance": player.date_of_birth,
+                "Numéro ID joueur": player.identification,
+            }
+            player_reports.append(player_dict)
+        
+        return player_reports
+    
+    def get_all_players_alphabetical(self):
+        """Liste de tous les joueurs par ordre alphabétique"""
+        
+        all_players = []           
+        all_players.sort(key=lambda p: (p.last_name, p.first_name))
+            
+        players_list = []
+        for player in all_players:
+            player_dict = {
+                "Nom": player.last_name,
+                "Prénom": player.first_name,
+                "Date de naissance": player.date_of_birth,
+                "Age": player.age,
+                "Numéro ID joueur": player.identification,
+            }
+            players_list.append(player_dict)
+        
+        return players_list
+    
+    def get_all_tournaments(self):
+        """Liste de tous les tournois"""
+        
+        # Charger tous les tournois depuis JSON
+        all_tournaments = self.load_tournaments_from_json()
+        
+        if all_tournaments:  
+            all_tournaments.sort(key=lambda t: t.name)
+
+        tournament_list = []
+        for tournament in all_tournaments:
+            tournament_dict = {
+                "Nom": tournament.name,
+                "Lieu": tournament.location,
+                "Date de début": tournament.beginning_date,
+                "Date de fin": tournament.end_date,
+                "Nombre de tours max": tournament.max_rounds,
+                "Tour actuel": tournament.actual_round,
+                "Description": tournament.description
+            }
+            tournament_list.append(tournament_dict)
+        
+        return tournament_list
+    
+    def get_tournament_info(self, tournament):
+        """Nom et dates d'un tournoi donné"""
+        
+        
+        tournament_info = {
+            "Nom": tournament.name,
+            "Date de début": tournament.beginning_date,
+            "Date de fin": tournament.end_date,
+        }
+        
+        return tournament_info
+
+    def get_tournament_rounds_and_matches(self, tournament):
+        """Liste de tous les tours du tournoi et de tous les matchs du tour"""
+        
+        # Étape 1 : Créer une liste pour stocker le résultat
+        rounds_data = []
+
+        for round in tournament.rounds:
+            round_dict ={
+                "Ronde": round.name,
+                "Début": round.start_datetime,
+                "Fin": round.end_datetime,
+                "Completion": round.is_completed,
+                "Matchs": []
+            }
+            
+            for match in round.matches:
+                match_dict = {
+                    "Joueur 1": match.player1,
+                    "Joueur 2": match.player2,
+                    "Score joueur 1": match.score1,
+                    "Score joueur 2": match.score2
+                }
+                round_dict["Matchs"].append(match_dict)
+
+            rounds_data.append(round_dict)
+        
+        # Étape 2 : Pour l'instant, on retourne la liste vide
+        return rounds_data
+
+    #===========================JSON controller===========================#
+    
+    def save_player_to_json(self, player):
+        """Sauvegarde un joueur dans players.json"""
+        try:
+            with open('players.json', 'r') as file:
+                players = json.load(file)
+        except FileNotFoundError:
+            players = []
+        
+        players.append(player.Player_Dictionary())
+        
+        with open('players.json', 'w') as file:
+            json.dump(players, file, indent=4)
+    
+    def load_players_from_json(self):
+        """Charge tous les joueurs depuis players.json"""
+        try:
+            with open('players.json', 'r') as file:
+                players_data = json.load(file)
+                players = []
+                for player_data in players_data:
+                    player = Player(
+                        player_data['first_name'],
+                        player_data['last_name'],
+                        player_data['date_of_birth'],
+                        player_data['age'],
+                        player_data['identification']
+                    )
+                    players.append(player)
+                return players
+        except FileNotFoundError:
+            return []
+    
+    def save_tournament_to_json(self, tournament):
+        """Sauvegarde un tournoi dans tournaments.json"""
+        try:
+            with open('tournaments.json', 'r') as file:
+                tournaments = json.load(file)
+        except FileNotFoundError:
+            tournaments = []
+        
+        # Version simplifiée du Tournament_Dictionary (sans rounds/players pour l'instant)
+        tournament_dict = {
+            "name": tournament.name,
+            "location": tournament.location,
+            "beginning_date": tournament.beginning_date,
+            "end_date": tournament.end_date,
+            "max_rounds": tournament.max_rounds,
+            "actual_round": tournament.actual_round,
+            "description": tournament.description,
+            "players_count": len(tournament.players),
+            "rounds_count": len(tournament.rounds)
+        }
+        
+        tournaments.append(tournament_dict)
+        
+        with open('tournaments.json', 'w') as file:
+            json.dump(tournaments, file, indent=4)
+    
+    def load_tournaments_from_json(self):
+        """Charge tous les tournois depuis tournaments.json"""
+        try:
+            with open('tournaments.json', 'r') as file:
+                tournaments_data = json.load(file)
+                tournaments = []
+                for tournament_data in tournaments_data:
+                    tournament = Tournament(
+                        name=tournament_data['name'],
+                        location=tournament_data['location'],
+                        beginning_date=tournament_data['beginning_date'],
+                        end_date=tournament_data['end_date'],
+                        max_rounds=tournament_data['max_rounds'],
+                        actual_round=tournament_data['actual_round'],
+                        description=tournament_data['description']
+                    )
+                    tournaments.append(tournament)
+                return tournaments
+        except FileNotFoundError:
+            return []
+    
+    def save_tournament_complete_to_json(self, tournament):
+        """Sauvegarde complète d'un tournoi avec rounds, matches et joueurs"""
+        try:
+            with open('tournaments_complete.json', 'r') as file:
+                tournaments = json.load(file)
+        except FileNotFoundError:
+            tournaments = []
+        
+        # Utiliser la méthode Tournament_Dictionary complète
+        tournaments.append(tournament.Tournament_Dictionary())
+        
+        with open('tournaments_complete.json', 'w') as file:
+            json.dump(tournaments, file, indent=4)
+    
+    def load_tournament_complete_from_json(self, tournament_name):
+        """Charge un tournoi complet depuis JSON par son nom"""
+        try:
+            with open('tournaments_complete.json', 'r') as file:
+                tournaments_data = json.load(file)
+                
+            for tournament_data in tournaments_data:
+                if tournament_data['name'] == tournament_name:
+                    # Reconstruire les joueurs
+                    players = []
+                    for player_data in tournament_data['players']:
+                        player = Player(
+                            player_data['first_name'],
+                            player_data['last_name'],
+                            player_data['date_of_birth'],
+                            player_data['age'],
+                            player_data['identification']
+                        )
+                        players.append(player)
+                    
+                    # Créer le tournoi
+                    tournament = Tournament(
+                        name=tournament_data['name'],
+                        location=tournament_data['location'],
+                        beginning_date=tournament_data['beginning_date'],
+                        end_date=tournament_data['end_date'],
+                        max_rounds=tournament_data['max_rounds'],
+                        actual_round=tournament_data['actual_round'],
+                        rounds=[],  # On va reconstruire les rounds
+                        players=players,
+                        description=tournament_data['description']
+                    )
+                    
+                    # Reconstruire les rounds et matches
+                    from Models.Round import Round
+                    for round_data in tournament_data['rounds']:
+                        # Créer le round
+                        round_obj = Round()
+                        round_obj.name = round_data['name']
+                        round_obj.start_datetime = round_data['start_datetime']
+                        round_obj.end_datetime = round_data['end_datetime']
+                        round_obj.is_started = round_data['is_started']
+                        round_obj.is_completed = round_data['is_completed']
+                        
+                        # Reconstruire les matches
+                        for match_data in round_data['matches']:
+                            # Trouver les joueurs par ID
+                            player1 = next((p for p in players if p.identification == match_data['player1_id']), None)
+                            player2 = next((p for p in players if p.identification == match_data['player2_id']), None)
+                            
+                            if player1 and player2:
+                                match = Match(player1, player2, match_data['score1'], match_data['score2'])
+                                round_obj.matches.append(match)
+                        
+                        tournament.rounds.append(round_obj)
+                    
+                    return tournament
+                    
+            return None  # Tournoi non trouvé
+            
+        except FileNotFoundError:
+            return None
+
+

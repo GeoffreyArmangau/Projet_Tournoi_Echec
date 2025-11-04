@@ -16,9 +16,9 @@ class Tournament:
             "location": self.location,
             "beginning_date": self.beginning_date,
             "end_date": self.end_date,
-            "round": self.max_rounds,
+            "max_rounds": self.max_rounds,
             "actual_round": self.actual_round,
-            "rounds": [round_obj.round_to_dict() for round_obj in self.rounds],
+            "rounds": [round_obj.Round_Dictionary() for round_obj in self.rounds],
             "players": [player.Player_Dictionary() for player in self.players],
             "description": self.description
         }
