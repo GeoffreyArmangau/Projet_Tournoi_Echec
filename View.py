@@ -5,11 +5,16 @@ class View:
         self.controller = controller
 
     def display_header(self):
+        """ Gérer l'en-tête du menu"""
+
         print("=" * 50)
         print("           SYSTÈME DE TOURNOI D'ÉCHECS           ")
         print("=" * 50)
 
+    #======================== Main menu =============================
     def display_menu(self):
+        """ Menu principal du programme """
+
         print("1. Gestion des Joueurs")
         print("2. Gestion des Tournois")
         print("3. Gestion des Rondes")
@@ -41,7 +46,10 @@ class View:
     def display_message(self, message):
         print(message)
 
+    # ======================== Submenu ===============================
     def display_submenu(self, entity_name):
+        """ Sous-menu de gestion des joueurs et tournois"""
+
         print(f"=== Gestion des {entity_name} ===")
         print("1. Créer")
         print("2. Afficher")
@@ -49,6 +57,7 @@ class View:
         print("4. Sauvegarder")
         print("5. Retour au menu principal")
 
+    # ======================= Get info ===============================
     def get_tournament_info(self):
         name = input("Nom du tournoi: ")
         lieu = input("Lieu du tournoi: ")
@@ -64,6 +73,7 @@ class View:
         national_id = input("ID national: ")
         return first_name, last_name, birth_date, national_id
 
+    # ====================== def menu action ========================
     def manage_players(self):
         while True:
             self.display_submenu("Joueurs")
@@ -86,8 +96,24 @@ class View:
 
     #A faire
     def manage_tournaments(self):
-        self.display_message("Gestion des tournois")
-        input("Appuyez sur Entrée pour continuer...")
+        while True:
+            self.display_submenu("Tournois")
+            choice = input("votre choix (1-5): ")
+
+            if choice == "1":
+                self.create.tournament()
+            elif choice == "2":
+                self.dispay_tournament()
+            elif choice == "3":
+                self.display_message("Charger les tounois")
+            elif choice == "4":
+                self.display_message("Sauvegarder les tournoi")
+            elif choice == "5":
+                break
+            else:
+                self.display_message("Choix invalide")
+
+            input("Appuyez sur Entrée pour continuer...")
 
     #A faire
     def manage_rounds(self):
@@ -98,13 +124,13 @@ class View:
     def manage_reports(self):
         pass
 
+
+    # ===================== def submenu player =======================
     def create_player(self):
         self.display_message("=== Création d'un nouveau joueur ===")
         
-        # Interface utilisateur - récupérer les informations
         first_name, last_name, birth_date, national_id = self.get_player_info()
-        
-        # Déléguer la logique métier au controller
+                
         if self.controller:
             success, message = self.controller.create_player_simple(first_name, last_name, birth_date, national_id)
             self.display_message(message)
@@ -114,11 +140,27 @@ class View:
     def display_players(self):
         self.display_message("=== Liste des joueurs ===")
         
-        if self.controller and hasattr(self.controller, 'players') and self.controller.players:
-            for i, player in enumerate(self.controller.players, 1):
-                print(f"{i}. {player.first_name} {player.last_name}")
-                print(f"   Né le: {player.date_of_birth} (âge: {player.age})")
-                print(f"   ID: {player.identification}")
+        if self.controller and self.controller.players:
+            for i in range(len(self.controller.players)):
+                player = self.controller.players[i]
+                print(f"{i+1}. {player.first_name} {player.last_name}")
+                print(f"Né le: {player.date_of_birth} (âge: {player.age})")
+                print(f"ID: {player.identification}")
                 print()
         else:
             self.display_message("Aucun joueur créé pour le moment.")
+
+    # ===================== def submenu tournament =======================
+    def create_new_tournament(self):
+        self.display_message("=== Création d'un nouveau tournoi ===")
+
+        name, lieu, nb_players, nb_rounds, description = self.get_tournament_info()
+        if self.controller:
+            success, message = self.controller.create_tournament(name, lieu, nb_players, nb_rounds, description)
+        else:
+            self.display_message("Controller non disponible")
+    
+    def display_tournament(self):
+        self.display_message("=== Liste des tournois ===")
+
+        
