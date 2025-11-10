@@ -57,14 +57,25 @@ class View:
         print("4. Sauvegarder")
         print("5. Retour au menu principal")
 
+    def display_reports_menu(self):
+        """ Menu spécialisé pour les rapports"""
+        
+        print("=== Gestion des Rapports ===")
+        print("1. Joueurs d'un tournoi")
+        print("2. Tous les joueurs (alphabétique)")
+        print("3. Tous les tournois")
+        print("4. Informations d'un tournoi")
+        print("5. Rondes et matchs d'un tournoi")
+        print("6. Retour au menu principal")
+
     # ======================= Get info ===============================
     def get_tournament_info(self):
         name = input("Nom du tournoi: ")
-        lieu = input("Lieu du tournoi: ")
-        nb_players = input("Nombre de joueurs: ")
-        nb_rounds = input("Nombre de rondes: ")
+        location = input("Lieu du tournoi: ")
+        number_players = input("Nombre de joueurs: ")
+        number_rounds = input("Nombre de rondes: ")
         description = input("Description du tournoi: ")
-        return name, lieu, nb_players, nb_rounds, description
+        return name, location, number_players, number_rounds, description
     
     def get_player_info(self):
         first_name = input("Prénom: ")
@@ -101,13 +112,13 @@ class View:
             choice = input("votre choix (1-5): ")
 
             if choice == "1":
-                self.create.tournament()
+                self.create_new_tournament()
             elif choice == "2":
-                self.dispay_tournament()
+                self.display_tournament()
             elif choice == "3":
                 self.display_message("Charger les tounois")
             elif choice == "4":
-                self.display_message("Sauvegarder les tournoi")
+                self.display_message("Sauvegarder les tournois")
             elif choice == "5":
                 break
             else:
@@ -117,11 +128,47 @@ class View:
 
     #A faire
     def manage_rounds(self):
-        self.display_message("Gestion des rondes")
-        input("Appuyez sur Entrée pour continuer...")
+        while True:
+            self.display_submenu("Tournois")
+            choice = input("votre choix (1-5): ")
+
+            if choice == "1":
+                self.create_new_tournament()
+            elif choice == "2":
+                self.display_tournament()
+            elif choice == "3":
+                self.display_message("Charger les tounois")
+            elif choice == "4":
+                self.display_message("Sauvegarder les tournois")
+            elif choice == "5":
+                break
+            else:
+                self.display_message("Choix invalide")
+
+            input("Appuyez sur Entrée pour continuer...")
 
     #A faire
     def manage_reports(self):
+        while True:
+            self.display_reports_menu()
+            choice = input("votre choix (1-6): ")
+
+            if choice == "1":
+                self.tournament_players_report()
+            elif choice == "2":
+                self.display_alphabetical_players_report()
+            elif choice == "3":
+                self.tournaments_report()
+            elif choice == "4":
+                self.tournaments_info_report()
+            elif choice == "5":
+                self.Rounds_and_matches_report()
+            elif choice == "6":
+                break
+            else:
+                self.display_message("Choix invalide")
+
+            input("Appuyez sur Entrée pour continuer...")
         pass
 
 
@@ -154,13 +201,37 @@ class View:
     def create_new_tournament(self):
         self.display_message("=== Création d'un nouveau tournoi ===")
 
-        name, lieu, nb_players, nb_rounds, description = self.get_tournament_info()
+        name, location, number_players, number_rounds, description = self.get_tournament_info()
         if self.controller:
-            success, message = self.controller.create_tournament(name, lieu, nb_players, nb_rounds, description)
+            success, message = self.controller.create_tournament(name, location, number_players, number_rounds, description)
+            self.display_message(message)
         else:
             self.display_message("Controller non disponible")
     
     def display_tournament(self):
         self.display_message("=== Liste des tournois ===")
 
-        
+        if self.controller and self.controller.tournaments:
+            for i in range(len(self.controller.tournaments)):
+                tournament=self.controller.tournaments[i]
+                print(f"{i+1}. {tournament.name}")
+                print(f"Se déroulera à {tournament.location}")
+                print(f"Le tournoi enregistre {tournament.number_players} joueurs, qui s'affronterons sur {tournament.number_rounds} rondes.")
+                print(f"{tournament.description}")
+        else:
+            self.display_message("Aucun tournoi de crée pour le moment")
+
+    #======================= reports submenu ==============================
+    def tournament_players_report(self):
+        """Rapport sur un tournoi selectionné"""
+        self.display_message("=== Sélection du tournoi ===")
+        tournaments_available = []
+        if self.controller.tournaments:
+            for i in range(len(self.controller.tournaments)):
+                tournament = self.controller.tournaments[i]
+                tournaments_available.append(tournament)
+                print(f"{i+1}. {tournament.name}") 
+        else:
+            self.display_message("Aucun tournoi de crée pour le moment")
+
+    
