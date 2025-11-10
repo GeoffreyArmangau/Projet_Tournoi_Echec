@@ -21,15 +21,12 @@ class Controllers:
             if not all([first_name, last_name, birth_date, national_id]):
                 return False, "Tous les champs sont obligatoires !"
             
-            # Logique métier : calculer l'âge automatiquement
+            # Logique métier : calculer l'âge automatiquement (format DD/MM/YYYY)
             current_year = datetime.now().year
-            birth_year = int(birth_date.split('-')[0])
+            birth_year = int(birth_date.split('/')[2])  # Prendre la 3ème partie (année)
             age = current_year - birth_year
             
-            # Créer le joueur
             player = Player(first_name, last_name, birth_date, age, national_id)
-            
-            # Stocker le joueur dans la liste
             self.players.append(player)
             
             return True, f"Joueur {first_name} {last_name} créé avec succès !"

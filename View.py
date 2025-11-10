@@ -72,15 +72,16 @@ class View:
     def get_tournament_info(self):
         name = input("Nom du tournoi: ")
         location = input("Lieu du tournoi: ")
-        number_players = input("Nombre de joueurs: ")
-        number_rounds = input("Nombre de rondes: ")
+        beginning_date = input("Date de début (DD/MM/YYYY): ")
+        end_date = input("Date de fin (DD/MM/YYYY): ")
+        number_of_rounds = input("Nombre de rondes: ")
         description = input("Description du tournoi: ")
-        return name, location, number_players, number_rounds, description
+        return name, location, beginning_date, end_date, number_of_rounds, description
     
     def get_player_info(self):
         first_name = input("Prénom: ")
         last_name = input("Nom de famille: ")
-        birth_date = input("Date de naissance (YYYY-MM-DD): ")
+        birth_date = input("Date de naissance (DD/MM/YYYY): ")
         national_id = input("ID national: ")
         return first_name, last_name, birth_date, national_id
 
@@ -201,10 +202,11 @@ class View:
     def create_new_tournament(self):
         self.display_message("=== Création d'un nouveau tournoi ===")
 
-        name, location, number_players, number_rounds, description = self.get_tournament_info()
+        name, location, beginning_date, end_date, number_of_rounds, description = self.get_tournament_info()
         if self.controller:
-            success, message = self.controller.create_tournament(name, location, number_players, number_rounds, description)
-            self.display_message(message)
+            tournament = self.controller.create_tournament(name, location, beginning_date, end_date, int(number_of_rounds), description)
+            self.controller.tournaments.append(tournament)
+            self.display_message(f"Tournoi '{name}' créé avec succès !")
         else:
             self.display_message("Controller non disponible")
     
@@ -216,7 +218,7 @@ class View:
                 tournament=self.controller.tournaments[i]
                 print(f"{i+1}. {tournament.name}")
                 print(f"Se déroulera à {tournament.location}")
-                print(f"Le tournoi enregistre {tournament.number_players} joueurs, qui s'affronterons sur {tournament.number_rounds} rondes.")
+                print(f"Le tournoi enregistre {len(tournament.players)} joueurs, qui s'affronterons sur {tournament.max_rounds} rondes.")
                 print(f"{tournament.description}")
         else:
             self.display_message("Aucun tournoi de crée pour le moment")
@@ -230,8 +232,71 @@ class View:
             for i in range(len(self.controller.tournaments)):
                 tournament = self.controller.tournaments[i]
                 tournaments_available.append(tournament)
-                print(f"{i+1}. {tournament.name}") 
+                print(f"{i+1}. {tournament.name}")
+                      
+            choice = input("Choisissez le numéro d'un tournoir parmis les tournois suivant") 
+            tournament_index = int(choice)-1
+            selected_tournament = tournaments_available[tournament_index]
+
+            # Récupérer et afficher le rapport des joueurs
+            report_data = self.controller.get_tournament_player_report(selected_tournament)
+            print("=== Joueurs du tournoi ===")
+            for player_info in report_data:
+                print(f"- {player_info['Prénom']} {player_info['Nom']} (ID: {player_info['Numéro ID joueur']})")
+
         else:
             self.display_message("Aucun tournoi de crée pour le moment")
 
+    def display_alphabetical_players_report(self):
+        """Rapport sur les joueurs par ordre alphabétique"""
+        report_data = self.controller.get_all_players_alphabetical()
+        
+        if report_data:
+            print("=== Tous les joueurs (ordre alphabétique) ===")
+            for player_info in report_data:
+                print(f"- {player_info['Prénom']} {player_info['Nom']} (ID: {player_info['Numéro ID joueur']})")
+        else:
+            self.display_message("Aucun joueur d'enregistré pour le moment")
     
+    def tournaments_report(self):
+        """Rapport sur tous les tournois"""
+        report_data = self.controller.get_all_tournaments()
+        
+        if report_data:
+            print("=== Tous les tournois ===")
+            for tournament_info in report_data:
+                print(
+                    f"- {tournament_info['Nom']} à {tournament_info['Lieu']}." 
+                    f" Il se déroulera du {tournament_info['Date de début']} au {tournament_info['Date de fin']} sur {tournament_info['Nombre de tours max']} rondes."
+                )
+                if tournament_info['Description']:
+                    print(f"  Description: {tournament_info['Description']}")
+                else:
+                    print("  Aucune description")
+        else:
+            self.display_message("Aucun tournoi d'enregistré pour le moment")
+
+    def tournaments_info_report(self):
+        """Informations détaillées d'un tournoi sélectionné"""
+        self.display_message("=== Sélection du tournoi ===")
+        tournaments_available = []
+        
+        if self.controller.tournaments:
+            for i in range(len(self.controller.tournaments)):
+                tournament = self.controller.tournaments[i]
+                tournaments_available.append(tournament)
+                print(f"{i+1}. {tournament.name}")
+                      
+            choice = input("Choisissez le numéro d'un tournoi: ") 
+            tournament_index = int(choice) - 1
+            selected_tournament = tournaments_available[tournament_index]
+
+            # Récupérer et afficher les informations du tournoi
+            tournament_info = self.controller.get_tournament_info(selected_tournament)
+            print(f"=== Informations du tournoi '{selected_tournament.name}' ===")
+            print(f"Nom: {tournament_info['Nom']}")
+            print(f"Date de début: {tournament_info['Date de début']}")
+            print(f"Date de fin: {tournament_info['Date de fin']}")
+
+        else:
+            self.display_message("Aucun tournoi de créé pour le moment")
