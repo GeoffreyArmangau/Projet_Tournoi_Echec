@@ -22,11 +22,16 @@ class View:
         print("5. Quitter")
 
     def get_user_choice(self):
-        choice = input("Veuillez choisir l'une des options ci-dessus")
+        choice = input("Veuillez choisir l'une des options ci-dessus: ")
+        
+        # Nettoyer l'input en gardant seulement le premier caractère s'il est un chiffre
+        choice = choice.strip()
+        if choice and choice[0].isdigit():
+            choice = choice[0]
 
         valid_choice = ["1", "2", "3", "4", "5"]
         if choice not in valid_choice:
-            raise ValueError("Votre entrée n'est pas valide. Merci de rentrer un choix entre 1 et 4.")
+            raise ValueError("Votre entrée n'est pas valide. Merci de rentrer un choix entre 1 et 5.")
 
         return choice
 
@@ -250,6 +255,40 @@ class View:
                 print(f"{tournament.description}")
         else:
             self.display_message("Aucun tournoi de crée pour le moment")
+
+    def register_players_to_tournament(self):
+        """Inscrire des joueurs à un tournoi"""
+        if not self.controller.tournaments:
+            self.display_message("Aucun tournoi créé")
+            return
+        
+        if not self.controller.players:
+            self.display_message("Aucun joueur créé")
+            return
+        
+        # Sélection du tournoi
+        print("=== Sélection du tournoi ===")
+        for i in range(len(self.controller.tournaments)):
+            tournament = self.controller.tournaments[i]
+            print(f"{i+1}. {tournament.name} ({len(tournament.players)} joueurs inscrits)")
+        
+        choice = input("Choisissez le numéro du tournoi: ")
+        tournament_index = int(choice) - 1
+        selected_tournament = self.controller.tournaments[tournament_index]
+        
+        # Sélection des joueurs
+        print("\n=== Joueurs disponibles ===")
+        for i in range(len(self.controller.players)):
+            player = self.controller.players[i]
+            print(f"{i+1}. {player.first_name} {player.last_name} ({player.identification})")
+        
+        player_choice = input("Choisissez le numéro du joueur à inscrire: ")
+        player_index = int(player_choice) - 1
+        selected_player = self.controller.players[player_index]
+        
+        # Ajouter le joueur au tournoi via le controller
+        self.controller.add_player_to_tournament(selected_tournament, selected_player)
+        self.display_message(f"Joueur {selected_player.first_name} {selected_player.last_name} inscrit au tournoi {selected_tournament.name}")
 
     # ===================== def submenu tournament =======================
     def start_first_round(self):
