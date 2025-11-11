@@ -68,6 +68,27 @@ class View:
         print("5. Rondes et matchs d'un tournoi")
         print("6. Retour au menu principal")
 
+    def display_rounds_menu(self):
+        """Menu spécialisé pour la gestion des rondes"""
+        print("=== Gestion des Rondes ===")
+        print("1. Démarrer la première ronde")
+        print("2. Voir les matchs en cours")
+        print("3. Saisir les résultats")
+        print("4. Passer à la ronde suivante")
+        print("5. Voir le classement")
+        print("6. Voir toutes les rondes")
+        print("7. Retour au menu principal")
+
+    def display_tournaments_menu(self):
+        """Menu spécialisé pour la gestion des tournois"""
+        print("=== Gestion des Tournois ===")
+        print("1. Créer")
+        print("2. Afficher")
+        print("3. Inscrire des joueurs")
+        print("4. Charger")
+        print("5. Sauvegarder")
+        print("6. Retour au menu principal")
+
     # ======================= Get info ===============================
     def get_tournament_info(self):
         name = input("Nom du tournoi: ")
@@ -109,45 +130,52 @@ class View:
     #A faire
     def manage_tournaments(self):
         while True:
-            self.display_submenu("Tournois")
-            choice = input("votre choix (1-5): ")
+            self.display_tournaments_menu()
+            choice = input("votre choix (1-6): ")
 
             if choice == "1":
                 self.create_new_tournament()
             elif choice == "2":
                 self.display_tournament()
             elif choice == "3":
-                self.display_message("Charger les tounois")
+                self.register_players_to_tournament()
             elif choice == "4":
-                self.display_message("Sauvegarder les tournois")
+                self.display_message("Charger les tournois")
             elif choice == "5":
+                self.display_message("Sauvegarder les tournois")
+            elif choice == "6":
                 break
             else:
                 self.display_message("Choix invalide")
 
             input("Appuyez sur Entrée pour continuer...")
 
-    #A faire
     def manage_rounds(self):
+        """Gestion des rondes d'un tournoi"""
         while True:
-            self.display_submenu("Tournois")
-            choice = input("votre choix (1-5): ")
+            self.display_rounds_menu()
+            choice = input("Votre choix (1-7): ")
 
             if choice == "1":
-                self.create_new_tournament()
+                self.start_first_round()
             elif choice == "2":
-                self.display_tournament()
+                self.display_current_matches()
             elif choice == "3":
-                self.display_message("Charger les tounois")
+                self.enter_match_results()
             elif choice == "4":
-                self.display_message("Sauvegarder les tournois")
+                self.start_next_round()
             elif choice == "5":
+                self.display_tournament_ranking()
+            elif choice == "6":
+                self.display_all_rounds()
+            elif choice == "7":
                 break
             else:
                 self.display_message("Choix invalide")
 
             input("Appuyez sur Entrée pour continuer...")
 
+             
     #A faire
     def manage_reports(self):
         while True:
@@ -222,6 +250,140 @@ class View:
                 print(f"{tournament.description}")
         else:
             self.display_message("Aucun tournoi de crée pour le moment")
+
+    # ===================== def submenu tournament =======================
+    def start_first_round(self):
+        """Démarrer la première ronde d'un tournoi"""
+        if not self.controller.tournaments:
+            self.display_message("Aucun tournoi créé")
+            return
+        
+        print("=== Sélection du tournoi ===")
+        for i in range(len(self.controller.tournaments)):
+            tournament = self.controller.tournaments[i]
+            print(f"{i+1}. {tournament.name}")
+        
+        choice = input("Choisissez le numéro du tournoi: ")
+        tournament_index = int(choice) - 1
+        selected_tournament = self.controller.tournaments[tournament_index]
+        
+        if selected_tournament.current_round > 0:
+            self.display_message("Ce tournoi a déjà commencé")
+            return
+        
+        self.controller.create_first_round(selected_tournament)
+        self.display_message(f"Première ronde créée pour {selected_tournament.name}")
+
+    def display_current_matches(self):
+        """Voir les matchs de la ronde en cours"""
+        if not self.controller.tournaments:
+            self.display_message("Aucun tournoi créé")
+            return
+        
+        print("=== Sélection du tournoi ===")
+        for i in range(len(self.controller.tournaments)):
+            tournament = self.controller.tournaments[i]
+            print(f"{i+1}. {tournament.name}")
+        
+        choice = input("Choisissez le numéro du tournoi: ")
+        tournament_index = int(choice) - 1
+        selected_tournament = self.controller.tournaments[tournament_index]
+        
+        if selected_tournament.current_round == 0:
+            self.display_message("Ce tournoi n'a pas encore commencé")
+            return
+        
+        # Afficher les matchs de la ronde actuelle
+        self.display_message("Fonction à compléter : afficher les matchs")
+
+    def enter_match_results(self):
+        """Saisir les résultats des matchs"""
+        if not self.controller.tournaments:
+            self.display_message("Aucun tournoi créé")
+            return
+        
+        print("=== Sélection du tournoi ===")
+        for i in range(len(self.controller.tournaments)):
+            tournament = self.controller.tournaments[i]
+            print(f"{i+1}. {tournament.name}")
+        
+        choice = input("Choisissez le numéro du tournoi: ")
+        tournament_index = int(choice) - 1
+        selected_tournament = self.controller.tournaments[tournament_index]
+        
+        if selected_tournament.current_round == 0:
+            self.display_message("Ce tournoi n'a pas encore commencé")
+            return
+        
+        # Saisir les résultats
+        self.display_message("Fonction à compléter : saisir les résultats")
+
+    def start_next_round(self):
+        """Passer à la ronde suivante"""
+        if not self.controller.tournaments:
+            self.display_message("Aucun tournoi créé")
+            return
+        
+        print("=== Sélection du tournoi ===")
+        for i in range(len(self.controller.tournaments)):
+            tournament = self.controller.tournaments[i]
+            print(f"{i+1}. {tournament.name}")
+        
+        choice = input("Choisissez le numéro du tournoi: ")
+        tournament_index = int(choice) - 1
+        selected_tournament = self.controller.tournaments[tournament_index]
+        
+        if selected_tournament.current_round == 0:
+            self.display_message("Ce tournoi n'a pas encore commencé")
+            return
+        
+        # Passer à la ronde suivante
+        self.display_message("Fonction à compléter : ronde suivante")
+
+    def display_tournament_ranking(self):
+        """Voir le classement du tournoi"""
+        if not self.controller.tournaments:
+            self.display_message("Aucun tournoi créé")
+            return
+        
+        print("=== Sélection du tournoi ===")
+        for i in range(len(self.controller.tournaments)):
+            tournament = self.controller.tournaments[i]
+            print(f"{i+1}. {tournament.name}")
+        
+        choice = input("Choisissez le numéro du tournoi: ")
+        tournament_index = int(choice) - 1
+        selected_tournament = self.controller.tournaments[tournament_index]
+        
+        if selected_tournament.current_round == 0:
+            self.display_message("Ce tournoi n'a pas encore commencé")
+            return
+        
+        # Afficher le classement
+        self.display_message("Fonction à compléter : classement")
+
+    def display_all_rounds(self):
+        """Voir toutes les rondes du tournoi"""
+        if not self.controller.tournaments:
+            self.display_message("Aucun tournoi créé")
+            return
+        
+        print("=== Sélection du tournoi ===")
+        for i in range(len(self.controller.tournaments)):
+            tournament = self.controller.tournaments[i]
+            print(f"{i+1}. {tournament.name}")
+        
+        choice = input("Choisissez le numéro du tournoi: ")
+        tournament_index = int(choice) - 1
+        selected_tournament = self.controller.tournaments[tournament_index]
+        
+        if selected_tournament.current_round == 0:
+            self.display_message("Ce tournoi n'a pas encore commencé")
+            return
+        
+        # Afficher toutes les rondes
+        self.display_message("Fonction à compléter : toutes les rondes")
+
 
     #======================= reports submenu ==============================
     def tournament_players_report(self):
@@ -300,3 +462,5 @@ class View:
 
         else:
             self.display_message("Aucun tournoi de créé pour le moment")
+
+
