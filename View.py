@@ -122,9 +122,12 @@ class View:
             elif choice == "2":
                 self.display_players()  
             elif choice == "3":
-                self.display_message("Charger les joueurs")
+                self.controller.players = self.controller.load_players_from_json()
+                self.display_message("Joueurs chargés depuis le fichier JSON")
             elif choice == "4":
-                self.display_message("Sauvegarder les joueurs")
+                for player in self.controller.players:
+                    self.controller.save_player_to_json(player)
+                self.display_message("Tous les joueurs sauvegardés dans le fichier JSON")
             elif choice == "5":
                 break
             else:
@@ -239,6 +242,10 @@ class View:
         if self.controller:
             tournament = self.controller.create_tournament(name, location, beginning_date, end_date, int(number_of_rounds), description)
             self.controller.tournaments.append(tournament)
+            
+            # Sauvegarde automatique
+            self.controller.save_tournament_to_json(tournament)
+            
             self.display_message(f"Tournoi '{name}' créé avec succès !")
         else:
             self.display_message("Controller non disponible")
@@ -279,7 +286,7 @@ class View:
         # Sélection des joueurs
         print("\n=== Joueurs disponibles ===")
         for i in range(len(self.controller.players)):
-            player = self.controller.players[i]
+            player = self.controller.players[i]                
             print(f"{i+1}. {player.first_name} {player.last_name} ({player.identification})")
         
         player_choice = input("Choisissez le numéro du joueur à inscrire: ")
@@ -287,10 +294,10 @@ class View:
         selected_player = self.controller.players[player_index]
         
         # Ajouter le joueur au tournoi via le controller
-        self.controller.add_player_to_tournament(selected_tournament, selected_player)
-        self.display_message(f"Joueur {selected_player.first_name} {selected_player.last_name} inscrit au tournoi {selected_tournament.name}")
+        success, message = self.controller.add_player_to_tournament(selected_tournament, selected_player)
+        self.display_message(message)
 
-    # ===================== def submenu tournament =======================
+    # ===================== def submenu rounds =======================
     def start_first_round(self):
         """Démarrer la première ronde d'un tournoi"""
         if not self.controller.tournaments:
@@ -306,7 +313,7 @@ class View:
         tournament_index = int(choice) - 1
         selected_tournament = self.controller.tournaments[tournament_index]
         
-        if selected_tournament.current_round > 0:
+        if selected_tournament.actual_round > 0:
             self.display_message("Ce tournoi a déjà commencé")
             return
         
@@ -328,7 +335,7 @@ class View:
         tournament_index = int(choice) - 1
         selected_tournament = self.controller.tournaments[tournament_index]
         
-        if selected_tournament.current_round == 0:
+        if selected_tournament.actual_round == 0:
             self.display_message("Ce tournoi n'a pas encore commencé")
             return
         
@@ -350,7 +357,7 @@ class View:
         tournament_index = int(choice) - 1
         selected_tournament = self.controller.tournaments[tournament_index]
         
-        if selected_tournament.current_round == 0:
+        if selected_tournament.actual_round == 0:
             self.display_message("Ce tournoi n'a pas encore commencé")
             return
         
@@ -372,7 +379,7 @@ class View:
         tournament_index = int(choice) - 1
         selected_tournament = self.controller.tournaments[tournament_index]
         
-        if selected_tournament.current_round == 0:
+        if selected_tournament.actual_round == 0:
             self.display_message("Ce tournoi n'a pas encore commencé")
             return
         
@@ -394,7 +401,7 @@ class View:
         tournament_index = int(choice) - 1
         selected_tournament = self.controller.tournaments[tournament_index]
         
-        if selected_tournament.current_round == 0:
+        if selected_tournament.actual_round == 0:
             self.display_message("Ce tournoi n'a pas encore commencé")
             return
         
@@ -416,7 +423,7 @@ class View:
         tournament_index = int(choice) - 1
         selected_tournament = self.controller.tournaments[tournament_index]
         
-        if selected_tournament.current_round == 0:
+        if selected_tournament.actual_round == 0:
             self.display_message("Ce tournoi n'a pas encore commencé")
             return
         

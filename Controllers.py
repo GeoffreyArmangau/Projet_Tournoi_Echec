@@ -29,14 +29,24 @@ class Controllers:
             player = Player(first_name, last_name, birth_date, age, national_id)
             self.players.append(player)
             
+            # Sauvegarde automatique
+            self.save_player_to_json(player)
+            
             return True, f"Joueur {first_name} {last_name} créé avec succès !"
             
         except Exception as e:
             return False, f"Erreur lors de la création: {e}"
 
     def add_player_to_tournament(self, tournament, player):
+        # Vérifier que le joueur n'est pas déjà dans le tournoi
+        for existing_player in tournament.players:
+            if existing_player.identification == player.identification:
+                return False, f"Le joueur {player.first_name} {player.last_name} est déjà inscrit à ce tournoi"
+        
         tournament.players.append(player)
-        return tournament
+        self.save_tournament_to_json(tournament)
+        
+        return True, f"Joueur {player.first_name} {player.last_name} ajouté avec succès"
 
         #===========================tournament controller===========================#
     def create_tournament(self, name, location, beginning_date, end_date, number_of_rounds=4, description=""):
@@ -302,7 +312,6 @@ class Controllers:
     def get_tournament_rounds_and_matches(self, tournament):
         """Liste de tous les tours du tournoi et de tous les matchs du tour"""
         
-        # Étape 1 : Créer une liste pour stocker le résultat
         rounds_data = []
 
         for round in tournament.rounds:
@@ -362,31 +371,30 @@ class Controllers:
         except FileNotFoundError:
             return []
     
-    def save_tournament_to_json(self, tournament):
-        """Sauvegarde un tournoi dans tournaments.json"""
-        try:
-            with open('tournaments.json', 'r') as file:
-                tournaments = json.load(file)
-        except FileNotFoundError:
-            tournaments = []
+    def save_all_tournaments_to_json(self):
+        """Sauvegarde tous les tournois dans tournaments.json"""
+        tournaments_data = []
         
-        # Version simplifiée du Tournament_Dictionary (sans rounds/players pour l'instant)
-        tournament_dict = {
-            "name": tournament.name,
-            "location": tournament.location,
-            "beginning_date": tournament.beginning_date,
-            "end_date": tournament.end_date,
-            "max_rounds": tournament.max_rounds,
-            "actual_round": tournament.actual_round,
-            "description": tournament.description,
-            "players_count": len(tournament.players),
-            "rounds_count": len(tournament.rounds)
-        }
-        
-        tournaments.append(tournament_dict)
+        for t in self.tournaments:
+            tournament_dict = {
+                "name": t.name,
+                "location": t.location,
+                "beginning_date": t.beginning_date,
+                "end_date": t.end_date,
+                "max_rounds": t.max_rounds,
+                "actual_round": t.actual_round,
+                "description": t.description,
+                "players_count": len(t.players),
+                "rounds_count": len(t.rounds)
+            }
+            tournaments_data.append(tournament_dict)
         
         with open('tournaments.json', 'w') as file:
-            json.dump(tournaments, file, indent=4)
+            json.dump(tournaments_data, file, indent=4)
+    
+    def save_tournament_to_json(self, tournament):
+        """Sauvegarde un tournoi - utilise la méthode globale"""
+        self.save_all_tournaments_to_json()
     
     def load_tournaments_from_json(self):
         """Charge tous les tournois depuis tournaments.json"""

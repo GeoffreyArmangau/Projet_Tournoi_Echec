@@ -9,10 +9,10 @@ from Controllers import Controllers
 def main():
     controller = Controllers()
     
-    # Chargement automatique des données au démarrage
+    
     try:
-        controller.load_players_from_json()
-        controller.load_tournaments_from_json()
+        controller.players = controller.load_players_from_json()
+        controller.tournaments = controller.load_tournaments_from_json()
         print("Données chargées avec succès!")
     except Exception as e:
         print(f"Aucune donnée précédente trouvée ou erreur de chargement: {e}")
@@ -28,9 +28,6 @@ def main():
         except ValueError as e:
             print(f"Erreur : {e}")
             input("Appuyez sur Entrée pour continuer...")
-        except KeyboardInterrupt:
-            print("\nAu revoir !")
-            break
         except Exception as e:
             print(f"Erreur inattendue : {e}")
             input("Appuyez sur Entrée pour continuer...")
