@@ -5,6 +5,7 @@ class Player:
         self.date_of_birth = date_of_birth
         self.age = age
         self.identification = identification
+        self.tournament_score = 0  # Score dans le tournoi en cours
     
     def Player_Dictionary(self):
         return {
@@ -12,6 +13,7 @@ class Player:
             "last_name": self.last_name,
             "date_of_birth": self.date_of_birth,
             "age": self.age,
-            "identification": self.identification
+            "identification": self.identification,
+            "tournament_score": getattr(self, 'tournament_score', 0)
         }
 
