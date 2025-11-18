@@ -1,5 +1,15 @@
 class Tournament:
-    def __init__(self, name, location, beginning_date, end_date, max_rounds = 4, actual_round=0, rounds = [], players = [], description=""):
+    def __init__(
+            self,
+            name,
+            location,
+            beginning_date,
+            end_date,
+            max_rounds=4,
+            actual_round=0,
+            rounds=[],
+            players=[],
+            description=""):
         self.name = name
         self.location = location
         self.beginning_date = beginning_date
@@ -18,8 +28,8 @@ class Tournament:
             "end_date": self.end_date,
             "max_rounds": self.max_rounds,
             "actual_round": self.actual_round,
-            "rounds": [round_obj.Round_Dictionary() for round_obj in self.rounds],
-            "players": [player.Player_Dictionary() for player in self.players],
-            "description": self.description
-        }
-    
+            "rounds": [
+                round_obj.Round_Dictionary() for round_obj in self.rounds],
+            "players": [
+                player.Player_Dictionary() for player in self.players],
+            "description": self.description}

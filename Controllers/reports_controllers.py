@@ -7,9 +7,9 @@ class ReportsController:
         """Rapport sur les joueurs du tournoi"""
         player_list = list(tournament.players)
         player_list.sort(key=lambda p: (p.last_name, p.first_name))
-        
+
         player_reports = []
-        
+
         for player in player_list:
             player_dict = {
                 "Nom": player.last_name,
@@ -18,15 +18,15 @@ class ReportsController:
                 "Numéro ID joueur": player.identification,
             }
             player_reports.append(player_dict)
-        
+
         return player_reports
-    
+
     def get_all_players_alphabetical(self, players_controller):
         """Liste de tous les joueurs par ordre alphabétique"""
-        
-        all_players = players_controller.load_players_from_json()           
+
+        all_players = players_controller.load_players_from_json()
         all_players.sort(key=lambda p: (p.last_name, p.first_name))
-            
+
         players_list = []
         for player in all_players:
             player_dict = {
@@ -37,16 +37,16 @@ class ReportsController:
                 "Numéro ID joueur": player.identification,
             }
             players_list.append(player_dict)
-        
+
         return players_list
-    
+
     def get_all_tournaments(self, tournaments_controller):
         """Liste de tous les tournois"""
-        
+
         # Charger tous les tournois depuis JSON
         all_tournaments = tournaments_controller.load_tournaments_from_json()
-        
-        if all_tournaments:  
+
+        if all_tournaments:
             all_tournaments.sort(key=lambda t: t.name)
 
         tournament_list = []
@@ -61,23 +61,23 @@ class ReportsController:
                 "Description": tournament.description
             }
             tournament_list.append(tournament_dict)
-        
+
         return tournament_list
-    
+
     def get_tournament_info(self, tournament):
         """Nom et dates d'un tournoi donné"""
-        
+
         tournament_info = {
             "Nom": tournament.name,
             "Date de début": tournament.beginning_date,
             "Date de fin": tournament.end_date,
         }
-        
+
         return tournament_info
 
     def get_tournament_rounds_and_matches(self, tournament):
         """Liste de tous les tours du tournoi et de tous les matchs du tour"""
-        
+
         rounds_data = []
 
         for round_obj in tournament.rounds:
@@ -88,7 +88,7 @@ class ReportsController:
                 "Completion": round_obj.is_completed,
                 "Matchs": []
             }
-            
+
             for match in round_obj.matches:
                 match_dict = {
                     "Joueur 1": match.player1,
@@ -99,24 +99,29 @@ class ReportsController:
                 round_dict["Matchs"].append(match_dict)
 
             rounds_data.append(round_dict)
-        
+
         return rounds_data
 
     def get_tournament_ranking(self, tournament):
         """Calcule et retourne le classement actuel du tournoi"""
         if tournament.actual_round == 0:
             return []
-        
+
         # Calculer les scores totaux des joueurs
         player_scores = {}
         for round_obj in tournament.rounds:
             for match in round_obj.matches:
-                player_scores[match.player1] = player_scores.get(match.player1, 0) + match.score1
-                player_scores[match.player2] = player_scores.get(match.player2, 0) + match.score2
-        
+                player_scores[match.player1] = player_scores.get(
+                    match.player1, 0) + match.score1
+                player_scores[match.player2] = player_scores.get(
+                    match.player2, 0) + match.score2
+
         # Trier par score décroissant
-        sorted_players = sorted(player_scores.items(), key=lambda x: x[1], reverse=True)
-        
+        sorted_players = sorted(
+            player_scores.items(),
+            key=lambda x: x[1],
+            reverse=True)
+
         ranking = []
         for i, (player, score) in enumerate(sorted_players, 1):
             ranking.append({
@@ -124,5 +129,5 @@ class ReportsController:
                 "player": player,
                 "score": score
             })
-        
+
         return ranking

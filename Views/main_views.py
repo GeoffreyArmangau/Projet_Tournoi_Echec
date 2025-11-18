@@ -1,5 +1,11 @@
 class MainViews:
-    def __init__(self, players_controller, tournaments_controller, matches_controller, rounds_controller, reports_controller):
+    def __init__(
+            self,
+            players_controller,
+            tournaments_controller,
+            matches_controller,
+            rounds_controller,
+            reports_controller):
         """
         Initialise la vue principale avec les contrôleurs spécialisés
         """
@@ -24,19 +30,27 @@ class MainViews:
 
     def get_user_choice(self):
         choice = input("Veuillez choisir l'une des options ci-dessus: ")
-        
-        # Nettoyer l'input en gardant seulement le premier caractère s'il est un chiffre
+
+        # Nettoyer l'input en gardant seulement le premier caractère s'il est
+        # un chiffre
         choice = choice.strip()
         if choice and choice[0].isdigit():
             choice = choice[0]
 
         valid_choice = ["1", "2", "3", "4"]
         if choice not in valid_choice:
-            raise ValueError("Votre entrée n'est pas valide. Merci de rentrer un choix entre 1 et 4.")
+            raise ValueError(
+                "Votre entrée n'est pas valide. "
+                "Merci de rentrer un choix entre 1 et 4.")
 
         return choice
 
-    def handle_choice(self, choice, players_views, tournaments_views, reports_views):
+    def handle_choice(
+            self,
+            choice,
+            players_views,
+            tournaments_views,
+            reports_views):
         if choice == "1":
             players_views.manage_players()
         elif choice == "2":

@@ -2,30 +2,41 @@ from Models.Player import Player
 import json
 from datetime import datetime
 
+
 class PlayersController:
     def __init__(self):
         """Initialise la liste pour stocker les joueurs"""
         self.players = []
 
-    def create_player_simple(self, first_name, last_name, birth_date, national_id):
+    def create_player_simple(
+            self,
+            first_name,
+            last_name,
+            birth_date,
+            national_id):
         """Crée un nouveau joueur avec la logique métier"""
         try:
             # Validation des champs vides
             if not all([first_name, last_name, birth_date, national_id]):
                 return False, "Tous les champs sont obligatoires !"
-            
+
             current_year = datetime.now().year
-            birth_year = int(birth_date.split('/')[2])  
+            birth_year = int(birth_date.split('/')[2])
             age = current_year - birth_year
-            
-            player = Player(first_name, last_name, birth_date, age, national_id)
+
+            player = Player(
+                first_name,
+                last_name,
+                birth_date,
+                age,
+                national_id)
             self.players.append(player)
-            
+
             # Sauvegarde automatique
             self.save_player_to_json(player)
-            
+
             return True, f"Joueur {first_name} {last_name} créé avec succès !"
-            
+
         except Exception as e:
             return False, f"Erreur lors de la création: {e}"
 
@@ -34,11 +45,15 @@ class PlayersController:
         # Vérifier que le joueur n'est pas déjà dans le tournoi
         for existing_player in tournament.players:
             if existing_player.identification == player.identification:
-                return False, f"Le joueur {player.first_name} {player.last_name} est déjà inscrit à ce tournoi"
-        
+                return False, f"Le joueur {
+                    player.first_name} {
+                    player.last_name} est déjà inscrit à ce tournoi"
+
         tournament.players.append(player)
-        
-        return True, f"Joueur {player.first_name} {player.last_name} ajouté avec succès"
+
+        return True, f"Joueur {
+            player.first_name} {
+            player.last_name} ajouté avec succès"
 
     def save_player_to_json(self, player):
         """Sauvegarde un joueur dans players.json"""
@@ -47,12 +62,12 @@ class PlayersController:
                 players = json.load(file)
         except FileNotFoundError:
             players = []
-        
+
         players.append(player.Player_Dictionary())
-        
+
         with open('players.json', 'w') as file:
             json.dump(players, file, indent=4)
-    
+
     def load_players_from_json(self):
         """Charge tous les joueurs depuis players.json"""
         try:
@@ -68,7 +83,8 @@ class PlayersController:
                         player_data['identification']
                     )
                     # Charger le tournament_score s'il existe dans les données
-                    player.tournament_score = player_data.get('tournament_score', 0)
+                    player.tournament_score = player_data.get(
+                        'tournament_score', 0)
                     players.append(player)
                 return players
         except FileNotFoundError:

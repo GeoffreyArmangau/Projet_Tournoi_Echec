@@ -1,1 +1,1 @@
-# Contrôleurs pour le système de tournoi d'échecs
+﻿# Controleurs pour le systeme de tournoi d'echecs

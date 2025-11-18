@@ -13,43 +13,46 @@ class PlayersViews:
         while True:
             self.display_submenu("Joueurs")
             choice = input("Votre choix (1-5): ")
-            
+
             if choice == "1":
                 self.create_player()
             elif choice == "2":
-                self.display_players()  
+                self.display_players()
             elif choice == "3":
-                self.players_controller.players = self.players_controller.load_players_from_json()
+                self.players_controller.players = (
+                    self.players_controller.load_players_from_json())
                 self.display_message("Joueurs chargés depuis le fichier JSON")
             elif choice == "4":
                 for player in self.players_controller.players:
                     self.players_controller.save_player_to_json(player)
-                self.display_message("Tous les joueurs sauvegardés dans le fichier JSON")
+                self.display_message(
+                    "Tous les joueurs sauvegardés dans le fichier JSON")
             elif choice == "5":
                 break
             else:
                 self.display_message("Choix invalide")
-            
+
             input("Appuyez sur Entrée pour continuer...")
 
     def create_player(self):
         self.display_message("=== Création d'un nouveau joueur ===")
-        
+
         first_name, last_name, birth_date, national_id = self.get_player_info()
-                
+
         if self.players_controller:
-            success, message = self.players_controller.create_player_simple(first_name, last_name, birth_date, national_id)
+            success, message = self.players_controller.create_player_simple(
+                first_name, last_name, birth_date, national_id)
             self.display_message(message)
         else:
             self.display_message("Players controller non disponible")
 
     def display_players(self):
         self.display_message("=== Liste des joueurs ===")
-        
+
         if self.players_controller and self.players_controller.players:
             for i in range(len(self.players_controller.players)):
                 player = self.players_controller.players[i]
-                print(f"{i+1}. {player.first_name} {player.last_name}")
+                print(f"{i + 1}. {player.first_name} {player.last_name}")
                 print(f"Né le: {player.date_of_birth} (âge: {player.age})")
                 print(f"ID: {player.identification}")
                 print()
