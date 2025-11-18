@@ -2,7 +2,7 @@
 Contrôleur principal du système de tournoi
 """
 
-from Views import View
+from Views import ViewsManager
 from Controllers.Players_controllers import PlayersController
 from Controllers.Tournaments_controllers import TournamentsController
 from Controllers.Matches_controllers import MatchesController
@@ -26,7 +26,7 @@ def main():
     except Exception as e:
         print(f"Aucune donnée précédente trouvée ou erreur de chargement: {e}")
 
-    view = View(
+    views_manager = ViewsManager(
         players_controller,
         tournaments_controller,
         matches_controller,
@@ -35,10 +35,10 @@ def main():
 
     while True:
         try:
-            view.display_header()
-            view.display_menu()
-            choice = view.get_user_choice()
-            view.handle_choice(choice)
+            views_manager.display_header()
+            views_manager.display_menu()
+            choice = views_manager.get_user_choice()
+            views_manager.handle_choice(choice)
         except ValueError as e:
             print(f"Erreur : {e}")
             input("Appuyez sur Entrée pour continuer...")

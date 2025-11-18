@@ -1,1 +1,1 @@
-# Modèles pour le système de tournoi d'échecs
+﻿# Modeles pour le systeme de tournoi d'echecs

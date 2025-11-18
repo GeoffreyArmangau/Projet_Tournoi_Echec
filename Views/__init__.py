@@ -68,12 +68,8 @@ class ViewsManager:
         return self.main_views.display_message(message)
 
 
-# Alias pour compatibilité avec l'ancien code
-View = ViewsManager
-
 __all__ = [
     'ViewsManager',
-    'View',
     'MainViews',
     'PlayersViews',
     'TournamentsViews',
