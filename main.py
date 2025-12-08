@@ -2,12 +2,12 @@
 Contrôleur principal du système de tournoi
 """
 
-from Views import ViewsManager
-from Controllers.Players_controllers import PlayersController
-from Controllers.Tournaments_controllers import TournamentsController
-from Controllers.Matches_controllers import MatchesController
-from Controllers.Rounds_controllers import RoundsController
-from Controllers.reports_controllers import ReportsController
+from views import ViewsManager
+from controllers.players_controllers import PlayersController
+from controllers.tournaments_controllers import TournamentsController
+from controllers.matches_controllers import MatchesController
+from controllers.rounds_controllers import RoundsController
+from controllers.reports_controllers import ReportsController
 
 
 def main():
