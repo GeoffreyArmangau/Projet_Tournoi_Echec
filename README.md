@@ -70,9 +70,9 @@ Le système gère automatiquement :
 ### Structure MVC Modulaire
 ```
 📁 Controllers/          # Logique métier spécialisée
-  ├── Players_controllers.py
-  ├── Tournaments_controllers.py
-  ├── Rounds_controllers.py
+  ├── players_controllers.py
+  ├── tournaments_controllers.py
+  ├── rounds_controllers.py
   ├── Matches_controllers.py
   └── reports_controllers.py
 

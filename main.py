@@ -2,12 +2,15 @@
 Contrôleur principal du système de tournoi
 """
 
-from Views import ViewsManager
-from Controllers.Players_controllers import PlayersController
-from Controllers.Tournaments_controllers import TournamentsController
-from Controllers.Matches_controllers import MatchesController
-from Controllers.Rounds_controllers import RoundsController
-from Controllers.reports_controllers import ReportsController
+from views.main_views import MainViews
+from views.players_views import PlayersViews
+from views.tournaments_views import TournamentsViews
+from views.reports_views import ReportsViews
+from controllers.players_controllers import PlayersController
+from controllers.tournaments_controllers import TournamentsController
+from controllers.matches_controllers import MatchesController
+from controllers.rounds_controllers import RoundsController
+from controllers.reports_controllers import ReportsController
 
 
 def main():
@@ -26,7 +29,11 @@ def main():
     except Exception as e:
         print(f"Aucune donnée précédente trouvée ou erreur de chargement: {e}")
 
-    views_manager = ViewsManager(
+
+    players_views = PlayersViews()
+    tournaments_views = TournamentsViews()
+    reports_views = ReportsViews()
+    views_manager = MainViews(
         players_controller,
         tournaments_controller,
         matches_controller,
@@ -38,7 +45,15 @@ def main():
             views_manager.display_header()
             views_manager.display_menu()
             choice = views_manager.get_user_choice()
-            views_manager.handle_choice(choice)
+            if choice == "1":
+                players_controller.manage_players(players_views)
+            elif choice == "2":
+                tournaments_controller.manage_tournaments(tournaments_views, players_controller, rounds_controller)
+            elif choice == "3":
+                reports_controller.manage_reports(reports_views, tournaments_controller)
+            elif choice == "4":
+                print("Merci d'avoir utilisé le système de tournoi d'échecs. Au revoir!")
+                break
         except ValueError as e:
             print(f"Erreur : {e}")
             input("Appuyez sur Entrée pour continuer...")
