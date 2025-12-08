@@ -1,7 +1,6 @@
 class ReportsViews:
-    def __init__(self, reports_controller, tournaments_controller):
-        self.reports_controller = reports_controller
-        self.tournaments_controller = tournaments_controller
+    def __init__(self):
+        pass
 
     def display_reports_menu(self):
         """ Menu spécialisé pour les rapports"""
@@ -13,73 +12,6 @@ class ReportsViews:
         print("5. Rondes et matchs d'un tournoi")
         print("6. Retour au menu principal")
 
-    def manage_reports(self):
-        while True:
-            self.display_reports_menu()
-            choice = input("votre choix (1-6): ")
-
-            if choice == "1":
-                self.tournament_players_report()
-            elif choice == "2":
-                self.display_alphabetical_players_report()
-            elif choice == "3":
-                self.tournaments_report()
-            elif choice == "4":
-                self.tournaments_info_report()
-            elif choice == "5":
-                self.rounds_and_matches_report()
-            elif choice == "6":
-                break
-            else:
-                self.display_message("Choix invalide")
-
-            input("Appuyez sur Entrée pour continuer...")
-
-    def tournament_players_report(self):
-        """Rapport sur un tournoi selectionné"""
-        self.display_message("=== Sélection du tournoi ===")
-
-        tournaments_available = []
-        if self.tournaments_controller.tournaments:
-            for i in range(len(self.tournaments_controller.tournaments)):
-                tournament = self.tournaments_controller.tournaments[i]
-                tournaments_available.append(tournament)
-                print(f"{i + 1}. {tournament.name}")
-
-            choice = input(
-                "Choisissez le numéro d'un tournoi parmi les tournois suivants: ")
-            tournament_index = int(choice) - 1
-            selected_tournament = tournaments_available[tournament_index]
-
-            # Récupérer et afficher le rapport des joueurs
-            report_data = self.reports_controller.get_tournament_player_report(
-                selected_tournament)
-            print("=== Joueurs du tournoi ===")
-            for player_info in report_data:
-                print(
-                    f"- {
-                        player_info['Prénom']} {
-                        player_info['Nom']} (ID: {
-                        player_info['Numéro ID joueur']})")
-
-        else:
-            self.display_message("Aucun tournoi de créé pour le moment")
-
-    def display_alphabetical_players_report(self):
-        """Rapport sur les joueurs par ordre alphabétique"""
-        report_data = self.reports_controller.get_all_players_alphabetical()
-
-        if report_data:
-            print("=== Tous les joueurs (ordre alphabétique) ===")
-            for player_info in report_data:
-                print(
-                    f"- {
-                        player_info['Prénom']} {
-                        player_info['Nom']} (ID: {
-                        player_info['Numéro ID joueur']})")
-        else:
-            self.display_message("Aucun joueur d'enregistré pour le moment")
-
     def tournaments_report(self):
         """Rapport sur tous les tournois"""
         report_data = self.reports_controller.get_all_tournaments()
@@ -88,12 +20,12 @@ class ReportsViews:
             print("=== Tous les tournois ===")
             for tournament_info in report_data:
                 print(
-                    f"- {
+                    f"""- {
                         tournament_info['Nom']} à {
                         tournament_info['Lieu']}." f" Il se déroulera du {
                         tournament_info['Date de début']} au {
                         tournament_info['Date de fin']} sur {
-                        tournament_info['Nombre de tours max']} rondes.")
+                        tournament_info['Nombre de tours max']} rondes.""")
                 if tournament_info['Description']:
                     print(f"  Description: {tournament_info['Description']}")
                 else:
@@ -120,11 +52,11 @@ class ReportsViews:
             tournament_info = self.reports_controller.get_tournament_info(
                 selected_tournament)
             print(
-                f"=== Informations du tournoi '{
+                f"""=== Informations du tournoi '{
                     selected_tournament.name}' ===")
             print(f"Nom: {tournament_info['Nom']}")
             print(f"Date de début: {tournament_info['Date de début']}")
-            print(f"Date de fin: {tournament_info['Date de fin']}")
+            print(f"Date de fin: {tournament_info['Date de fin']}""")
 
         else:
             self.display_message("Aucun tournoi de créé pour le moment")

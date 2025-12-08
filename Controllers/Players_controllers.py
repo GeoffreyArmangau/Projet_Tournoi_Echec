@@ -1,4 +1,4 @@
-from Models.Player import Player
+from models.Player import Player
 import json
 from datetime import datetime
 
@@ -12,22 +12,22 @@ class PlayersController:
             self,
             first_name,
             last_name,
-            birth_date,
+            date_of_birth,
             national_id):
         """Crée un nouveau joueur avec la logique métier"""
         try:
             # Validation des champs vides
-            if not all([first_name, last_name, birth_date, national_id]):
+            if not all([first_name, last_name, date_of_birth, national_id]):
                 return False, "Tous les champs sont obligatoires !"
 
             current_year = datetime.now().year
-            birth_year = int(birth_date.split('/')[2])
+            birth_year = int(date_of_birth.split('/')[2])
             age = current_year - birth_year
 
             player = Player(
                 first_name,
                 last_name,
-                birth_date,
+                date_of_birth,
                 age,
                 national_id)
             self.players.append(player)
@@ -89,3 +89,42 @@ class PlayersController:
                 return players
         except FileNotFoundError:
             return []
+
+    def manage_players(self, view):
+        while True:
+            view.display_submenu("Joueurs")
+            choice = input("Votre choix (1-5): ")
+            if choice == "1":
+                self.create_player(view)
+            elif choice == "2":
+                self.display_players(view)
+            elif choice == "3":
+                self.players = self.load_players_from_json()
+                view.display_message("Joueurs chargés depuis le fichier JSON")
+            elif choice == "4":
+                for player in self.players:
+                    self.save_player_to_json(player)
+                view.display_message("Tous les joueurs sauvegardés dans le fichier JSON")
+            elif choice == "5":
+                break
+            else:
+                view.display_message("Choix invalide")
+            input("Appuyez sur Entrée pour continuer...")
+
+    def create_player(self, view):
+        view.display_message("=== Création d'un nouveau joueur ===")
+        first_name, last_name, date_of_birth, national_id = view.get_player_info()
+        success, message = self.create_player_simple(first_name, last_name, date_of_birth, national_id)
+        view.display_message(message)
+
+    def display_players(self, view):
+        view.display_message("=== Liste des joueurs ===")
+        if self.players:
+            for i, player in enumerate(self.players):
+                print(f"{i + 1}. {player.first_name} {player.last_name}")
+                print(f"Né le: {player.date_of_birth} (âge: {player.age})")
+                print(f"ID: {player.identification}")
+                print()
+        else:
+            view.display_message("Aucun joueur créé pour le moment.")
+

@@ -1,6 +1,7 @@
-from Models.Match import Match
-from Models.Round import Round
+from models.Match import Match
+from models.Round import Round
 import random
+import datetime
 
 
 class RoundsController:
@@ -44,6 +45,7 @@ class RoundsController:
 
         # Créer la première ronde
         first_round = Round(round_number=1)
+        first_round.start_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         shuffled_players = tournament.players.copy()
         random.shuffle(shuffled_players)
         for i in range(0, len(shuffled_players), 2):
@@ -72,7 +74,7 @@ class RoundsController:
                 played_matches.add((match.player2, match.player1))
         return played_matches
 
-    def _validate_round_conditions(self, tournament):
+    def validate_round_conditions(self, tournament):
         """Valide les conditions pour créer une nouvelle ronde"""
         if tournament.actual_round >= tournament.max_rounds:
             raise ValueError("Le nombre de round max est atteint")
@@ -84,7 +86,7 @@ class RoundsController:
                     raise ValueError(
                         "Les matchs de la dernière ronde ne sont pas terminés")
 
-    def _calculate_player_scores(self, tournament):
+    def calculate_player_scores(self, tournament):
         """Calcule les scores totaux des joueurs"""
         total_player_scores = {}
         for round_obj in tournament.rounds:
@@ -95,7 +97,7 @@ class RoundsController:
                     match.player2, 0) + match.score2
         return total_player_scores
 
-    def _sort_players_by_score(self, total_player_scores):
+    def sort_players_by_score(self, total_player_scores):
         """Trie les joueurs par score avec randomisation en cas d'égalité"""
         def get_score(player_score_pair):
             return (player_score_pair[1], random.random())
@@ -105,14 +107,14 @@ class RoundsController:
             key=get_score,
             reverse=True)
 
-    def _create_pairings(self, new_round, sorted_players, played_matches):
+    def create_pairings(self, new_round, sorted_players, played_matches):
         """Crée les appariements en évitant les rematches"""
+        # sorted_players est une liste de tuples (player, score), on extrait les joueurs
         available_players = [player for player, score in sorted_players]
 
         while len(available_players) >= 2:
             player_1 = available_players[0]
-            for player in available_players[1:]:
-                player_2 = player
+            for player_2 in available_players[1:]:
                 if (player_1, player_2) not in played_matches:
                     match = Match(player_1, player_2)
                     self.add_match_to_round(new_round, match)
@@ -126,15 +128,16 @@ class RoundsController:
         """
         Gère les rondes à partir de la manche 2.
         """
-        self._validate_round_conditions(tournament)
+        self.validate_round_conditions(tournament)
 
-        total_player_scores = self._calculate_player_scores(tournament)
-        sorted_players = self._sort_players_by_score(total_player_scores)
+        total_player_scores = self.calculate_player_scores(tournament)
+        sorted_players = self.sort_players_by_score(total_player_scores)
 
         new_round = Round(round_number=tournament.actual_round + 1)
-        played_matches = self.get_played_matches(tournament)
+        new_round.start_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        self._create_pairings(new_round, sorted_players, played_matches)
+        played_matches = self.get_played_matches(tournament)
+        self.create_pairings(new_round, sorted_players, played_matches)
 
         # Ajouter la ronde au tournoi
         tournament.rounds.append(new_round)
@@ -144,6 +147,12 @@ class RoundsController:
         tournaments_controller.save_tournament_complete_to_json(tournament)
 
         return new_round
+
+    def mark_round_completed(self, round_obj):
+        """Marque le round comme terminé et renseigne la date/heure de fin"""
+        round_obj.is_completed = True
+        round_obj.end_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return round_obj
 
     def update_players_scores(self, tournament):
         """

@@ -131,3 +131,104 @@ class ReportsController:
             })
 
         return ranking
+    
+    def manage_reports(self, view, tournaments_controller):
+        while True:
+            view.display_reports_menu()
+            choice = input("votre choix (1-6): ")
+            if choice == "1":
+                self.tournament_players_report(view, tournaments_controller)
+            elif choice == "2":
+                self.display_alphabetical_players_report(view)
+            elif choice == "3":
+                self.tournaments_report(view, tournaments_controller)
+            elif choice == "4":
+                self.tournaments_info_report(view, tournaments_controller)
+            elif choice == "5":
+                self.rounds_and_matches_report(view, tournaments_controller)
+            elif choice == "6":
+                break
+            else:
+                view.display_message("Choix invalide")
+            input("Appuyez sur Entrée pour continuer...")
+
+    def tournament_players_report(self, view, tournaments_controller):
+        view.display_message("=== Sélection du tournoi ===")
+        tournaments_available = tournaments_controller.tournaments
+        if tournaments_available:
+            for i, tournament in enumerate(tournaments_available):
+                print(f"{i + 1}. {tournament.name}")
+            choice = input("Choisissez le numéro d'un tournoi parmi les tournois suivants: ")
+            tournament_index = int(choice) - 1
+            selected_tournament = tournaments_available[tournament_index]
+            report_data = self.get_tournament_player_report(selected_tournament)
+            print("=== Joueurs du tournoi ===")
+            for player_info in report_data:
+                print(f"- {player_info['Prénom']} {player_info['Nom']} (ID: {player_info['Numéro ID joueur']})")
+        else:
+            view.display_message("Aucun tournoi de créé pour le moment")
+
+    def display_alphabetical_players_report(self, view, players_controller):
+        report_data = self.get_all_players_alphabetical(players_controller)
+        if report_data:
+            print("=== Tous les joueurs (ordre alphabétique) ===")
+            for player_info in report_data:
+                print(f"- {player_info['Prénom']} {player_info['Nom']} (ID: {player_info['Numéro ID joueur']})")
+        else:
+            view.display_message("Aucun joueur enregistré")
+
+    def tournaments_report(self, view, tournaments_controller):
+        tournament_list = self.get_all_tournaments(tournaments_controller)
+        if tournament_list:
+            print("=== Liste des tournois enregistrés ===")
+            for tournament in tournament_list:
+                print(f"- {tournament['Nom']} | Lieu : {tournament['Lieu']} | Début : {tournament['Date de début']} | Fin : {tournament['Date de fin']} | Tours max : {tournament['Nombre de tours max']} | Tour actuel : {tournament['Tour actuel']} | Description : {tournament['Description']}")
+        else:
+            view.display_message("Aucun tournoi enregistré")
+
+    def tournaments_info_report(self, view, tournaments_controller):
+        tournaments_available = tournaments_controller.tournaments
+        if tournaments_available:
+            print("=== Sélection du tournoi ===")
+            for i, tournament in enumerate(tournaments_available):
+                print(f"{i + 1}. {tournament.name}")
+            choice = input("Choisissez le numéro d'un tournoi parmi les tournois suivants: ")
+            try:
+                tournament_index = int(choice) - 1
+                selected_tournament = tournaments_available[tournament_index]
+            except (ValueError, IndexError):
+                view.display_message("Numéro de tournoi invalide")
+                return
+            info = self.get_tournament_info(selected_tournament)
+            print("=== Informations sur le tournoi ===")
+            for key, value in info.items():
+                print(f"{key} : {value}")
+        else:
+            view.display_message("Aucun tournoi enregistré")
+
+    def rounds_and_matches_report(self, view, tournaments_controller):
+        tournaments_available = tournaments_controller.tournaments
+        if tournaments_available:
+            print("=== Sélection du tournoi ===")
+            for i, tournament in enumerate(tournaments_available):
+                print(f"{i + 1}. {tournament.name}")
+            choice = input("Choisissez le numéro d'un tournoi parmi les tournois suivants: ")
+
+            try:
+                tournament_index = int(choice) - 1
+                selected_tournament = tournaments_available[tournament_index]
+            except (ValueError, IndexError):
+                view.display_message("Numéro de tournoi invalide")
+                return
+            
+            print(f"=== Rounds et matchs du tournoi {selected_tournament.name} ===")
+            for round_obj in selected_tournament.rounds:
+                print(f"\n{round_obj.name}")
+                for match in round_obj.matches:
+                    player1 = f"{match.player1.first_name} {match.player1.last_name}"
+                    player2 = f"{match.player2.first_name} {match.player2.last_name}"
+                    print(f"  {player1} ({match.player1_color}) vs {player2} ({match.player2_color}) | Score : {match.score1} - {match.score2}")
+        else:
+            view.display_message("Aucun tournoi enregistré")
+
+    

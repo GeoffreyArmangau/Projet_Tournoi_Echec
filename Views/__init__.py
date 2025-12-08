@@ -4,7 +4,7 @@ Module Views - Gestion des interfaces utilisateur du système de tournoi d'éche
 
 from .main_views import MainViews
 from .players_views import PlayersViews
-from .Tournaments_views import TournamentsViews
+from .tournaments_views import TournamentsViews
 from .reports_views import ReportsViews
 
 
