@@ -39,10 +39,11 @@ Un système complet de gestion de tournois d'échecs développé en Python avec 
 git clone https://github.com/GeoffreyArmangau/Projet_Tournoi_Echec.git
 cd Projet_Tournoi_Echec
 python -m venv .venv
+```bash
 .venv\Scripts\activate  # Windows
+```
 source .venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
-```
 
 ## Utilisation
 
@@ -65,25 +66,58 @@ Le système gère automatiquement :
 - Sauvegarde après chaque action
 - Affichage du champion final
 
+## Analyse de Qualité et Conformité PEP8
+
+### Vérification et Rapport Flake8
+
+Le projet utilise **flake8** (avec flake8-html) pour garantir la conformité PEP8 sur tout le code utilitaire.
+
+#### Installation des outils de vérification
+```bash
+pip install flake8 flake8-html
+```
+
+#### Génération du rapport HTML
+Supprimez l'ancien rapport si besoin, puis générez le nouveau :
+```powershell
+Remove-Item -Recurse -Force flake8_rapport
+.venv\Scripts\python.exe -m flake8 --format=html --htmldir=flake8_rapport .
+```
+
+#### Consulter le rapport
+Ouvrez `flake8_rapport/index.html` dans votre navigateur pour visualiser les éventuels avertissements ou erreurs.
+
+#### Configuration personnalisée
+Le fichier `.flake8` à la racine du projet :
+```
+[flake8]
+max-line-length = 119
+exclude = .venv,venv,flake8_rapport,players.json,tournaments.json,tournaments_complete.json,README.md,README_flake8.md
+```
+permet de cibler uniquement le code source utile et d'adapter la longueur maximale des lignes.
+
+#### Objectif
+Le rapport doit afficher **aucune erreur** pour valider la conformité PEP8 du projet.
+
 ## Architecture
 
 ### Structure MVC Modulaire
 ```
 📁 Controllers/          # Logique métier spécialisée
-  ├── Players_controllers.py
-  ├── Tournaments_controllers.py
-  ├── Rounds_controllers.py
-  ├── Matches_controllers.py
+  ├── players_controllers.py
+  ├── tournaments_controllers.py
+  ├── rounds_controllers.py
+  ├── matches_controllers.py
   └── reports_controllers.py
 
-📁 Views/                # Interfaces utilisateur
-  ├── main_views.py      # Menu principal
-  ├── players_views.py   # Gestion joueurs
-  ├── Tournaments_views.py # Gestion tournois
-  ├── reports_views.py   # Rapports
-  └── __init__.py        # Point d'entrée
+📁 Views/             
+  ├── main_views.py     
+  ├── players_views.py  
+  ├── tournaments_views.py
+  ├── reports_views.py  
+  └── __init__.py        
 
-📁 Models/               # Modèles de données
+📁 Models/               
   ├── Player.py
   ├── Tournament.py
   ├── Round.py
