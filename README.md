@@ -103,7 +103,7 @@ Le rapport doit afficher **aucune erreur** pour valider la conformité PEP8 du p
 
 ### Structure MVC Modulaire
 ```
-📁 Controllers/          # Logique métier spécialisée
+📁 Controllers/          
   ├── players_controllers.py
   ├── tournaments_controllers.py
   ├── rounds_controllers.py
