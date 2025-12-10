@@ -10,7 +10,7 @@ from .reports_views import ReportsViews
 
 class ViewsManager:
     """
-    Gestionnaire principal des vues - Remplace l'ancienne classe View monolithique
+    Gestionnaire principal des vues 
     """
 
     def __init__(
