@@ -78,14 +78,3 @@ class MainViews:
         Affiche un message générique à l'utilisateur.
         """
         print(message)
-
-    def display_submenu(self, entity_name):
-        """
-        Affiche un sous-menu pour la gestion d'une entité (joueurs ou tournois).
-        """
-        print(f"=== Gestion des {entity_name} ===")
-        print("1. Créer")
-        print("2. Afficher")
-        print("3. Charger")
-        print("4. Sauvegarder")
-        print("5. Retour au menu principal")
