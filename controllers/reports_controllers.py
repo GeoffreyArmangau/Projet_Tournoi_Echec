@@ -241,6 +241,8 @@ class ReportsController:
             print(f"=== Rounds et matchs du tournoi {selected_tournament.name} ===")
             for round_obj in selected_tournament.rounds:
                 print(f"\n{round_obj.name}")
+                print(f"  Début : {round_obj.start_datetime}")
+                print(f"  Fin   : {round_obj.end_datetime}")
                 for match in round_obj.matches:
                     player1: str = f"{match.player1.first_name} {match.player1.last_name}"
                     player2: str = f"{match.player2.first_name} {match.player2.last_name}"

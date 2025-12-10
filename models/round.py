@@ -20,8 +20,8 @@ class Round:
         return {
             "name": self.name,
             "matches": [match.Match_Dictionary() for match in self.matches],
-            "start_datetime": self.start_datetime,
-            "end_datetime": self.end_datetime,
+            "start_datetime": self.start_datetime.strftime("%d/%m/%Y %H:%M:%S") if self.start_datetime else None,
+            "end_datetime": self.end_datetime.strftime("%d/%m/%Y %H:%M:%S") if self.end_datetime else None,
             "is_started": self.is_started,
             "is_completed": self.is_completed
         }

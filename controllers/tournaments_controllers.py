@@ -69,7 +69,8 @@ class TournamentsController:
                         end_date=tournament_data['end_date'],
                         max_rounds=tournament_data['max_rounds'],
                         actual_round=tournament_data['actual_round'],
-                        description=tournament_data['description']
+                        description=tournament_data['description'],
+                        players=[],
                     )
                     tournaments.append(tournament)
                 return tournaments
@@ -241,15 +242,22 @@ class TournamentsController:
         choice = input("Choisissez le numéro du tournoi: ")
         tournament_index = int(choice) - 1
         selected_tournament = self.tournaments[tournament_index]
-        print("\n=== Joueurs disponibles ===")
 
+        print("\n=== Joueurs disponibles ===")
         for i, player in enumerate(players_controller.players):
             print(f"{i + 1}. {player.first_name} {player.last_name} ({player.identification})")
-        player_choice = input("Choisissez le numéro du joueur à inscrire: ")
-        player_index = int(player_choice) - 1
-        selected_player = players_controller.players[player_index]
-        success, message = players_controller.add_player_to_tournament(selected_tournament, selected_player)
-        view.display_message(message)
+        print(f"{len(players_controller.players) + 1}. Inscrire tous les joueurs")
+        player_choice = input("Choisissez le numéro du joueur à inscrire (ou tous): ")
+        if player_choice == str(len(players_controller.players) + 1):
+            # Inscription de tous les joueurs
+            for player in players_controller.players:
+                success, message = players_controller.add_player_to_tournament(selected_tournament, player)
+                view.display_message(message)
+        else:
+            player_index = int(player_choice) - 1
+            selected_player = players_controller.players[player_index]
+            success, message = players_controller.add_player_to_tournament(selected_tournament, selected_player)
+            view.display_message(message)
 
     def launch_tournament(self, view, rounds_controller):
         if not self.tournaments:
@@ -344,72 +352,32 @@ class TournamentsController:
 
         return first_round
 
-    def get_played_matches(self, tournament):
-        """
-        Retourne les appariement déjà joués
-        """
-        played_matches = set()
-        for round_obj in tournament.rounds:
-            for match in round_obj.matches:
-                # Ajouter la paire (dans les deux sens pour éviter les problèmes d'ordre)
-                played_matches.add((match.player1, match.player2))
-                played_matches.add((match.player2, match.player1))
-        return played_matches
-
-    def next_round(self, tournament):
-        """
-        Gère les rondes à partir de la manche 2.
-        """
+    def generate_pairings(self, tournament):
+        played = set()
+        for rnd in tournament.rounds:
+            for match in rnd.matches:
+                ids = tuple(sorted([match.player1.identification, match.player2.identification]))
+                played.add(ids)
         import random
-        if tournament.actual_round > tournament.max_rounds:
-            raise ValueError("Le nombre de round max est atteint")
-
-        if not tournament.rounds == []:
-            last_round = tournament.rounds[-1]
-            for match in last_round.matches:
-                if match.score1 == 0 and match.score2 == 0:
-                    raise ValueError("les matchs de la dernière ronde ne sont pas terminés")
-
-        # récupération des scores avant tri
-        total_player_scores = {}
-        for round_obj in tournament.rounds:
-            for match in round_obj.matches:
-                total_player_scores[match.player1] = total_player_scores.get(match.player1, 0) + match.score1
-                total_player_scores[match.player2] = total_player_scores.get(match.player2, 0) + match.score2
-
-        # tri des joueurs avant la nouvelle ronde, randomisation en cas d'égalité
-        def get_score(player_score_pair):
-            return (player_score_pair[1], random.random())
-
-        sorted_players = sorted(total_player_scores.items(), key=get_score, reverse=True)
-
-        new_round = Round(round_number=1+tournament.actual_round)
-        played_matches = self.get_played_matches(tournament)
-
-        # récupérer la liste des joueurs classé
-        available_player = []
-        for player, score in sorted_players:
-            available_player.append(player)
-
-        # appariement en évitant une rencontre double
-        while len(available_player) >= 2:
-            player_1 = available_player[0]
-            for player in available_player[1:]:
-                player_2 = player
-                if (player_1, player_2) not in played_matches:
-                    match = Match(player_1, player_2)
-                    self.add_match_to_round(new_round, match)
-                    available_player.remove(player_1)
-                    available_player.remove(player_2)
-                    break
-            else:
-                raise ValueError("aucun match de disponible")
-
-        # ajouter la ronde au tournoi
-        tournament.rounds.append(new_round)
-        tournament.actual_round += 1
-
-        return new_round
+        players = tournament.players[:]
+        if tournament.actual_round == 0:
+            random.shuffle(players)
+        else:
+            players.sort(key=lambda p: getattr(p, 'tournament_score', 0), reverse=True)
+        pairings = []
+        used = set()
+        for i, player1 in enumerate(players):
+            if player1 in used:
+                continue
+            for j, player2 in enumerate(players):
+                if i != j and player2 not in used:
+                    ids = tuple(sorted([player1.identification, player2.identification]))
+                    if ids not in played:
+                        pairings.append((player1, player2))
+                        used.add(player1)
+                        used.add(player2)
+                        break
+        return pairings
 
     def get_score_input(self, player):
         while True:
