@@ -2,7 +2,6 @@ from models.tournament import Tournament
 from models.round import Round
 from models.match import Match
 from models.player import Player
-import random
 import json
 
 
@@ -221,7 +220,7 @@ class TournamentsController:
                 print(f"Se déroulera à {tournament.location}")
                 print(
                     f"Le tournoi enregistre {len(tournament.players)} joueurs, "
-                    f"qui s'affronterons sur {tournament.max_rounds} rondes."
+                    f"qui s'affronteront sur {tournament.max_rounds} rondes."
                 )
                 print(f"{tournament.description}")
         else:
@@ -321,71 +320,5 @@ class TournamentsController:
                     score2 = 1
                 print(f"Score pour {player2.first_name} {player2.last_name} : {score2}")
                 return score1, score2
-            except ValueError:
-                print("Entrée invalide. Entrez un nombre.")
-
-    def create_first_round(self, tournament):
-        """
-        Gérer la première ronde.
-
-        Ici les joueurs doivent s'affronter dans l'oredre 1vs2 et 3vs4 ou plus
-        """
-        if len(tournament.players) < 2:
-            raise ValueError("Le nombre de joueurs est insuffisant pour créer un appariement.")
-
-        if len(tournament.players) % 2 != 0:
-            raise ValueError("Le nombre de joueurs n'est pas un nombre pair. Appariements impossible.")
-
-        # créer la première ronde
-        first_round = Round(round_number=1)
-        shuffled_players = tournament.players.copy()
-        random.shuffle(shuffled_players)
-        for i in range(0, len(shuffled_players), 2):
-            player_1 = shuffled_players[i]
-            player_2 = shuffled_players[i + 1]
-            match = Match(player_1, player_2)
-            self.add_match_to_round(first_round, match)
-
-        # ajouter la ronde au tournoi
-        tournament.rounds.append(first_round)
-        tournament.actual_round += 1
-
-        return first_round
-
-    def generate_pairings(self, tournament):
-        played = set()
-        for rnd in tournament.rounds:
-            for match in rnd.matches:
-                ids = tuple(sorted([match.player1.identification, match.player2.identification]))
-                played.add(ids)
-        import random
-        players = tournament.players[:]
-        if tournament.actual_round == 0:
-            random.shuffle(players)
-        else:
-            players.sort(key=lambda p: getattr(p, 'tournament_score', 0), reverse=True)
-        pairings = []
-        used = set()
-        for i, player1 in enumerate(players):
-            if player1 in used:
-                continue
-            for j, player2 in enumerate(players):
-                if i != j and player2 not in used:
-                    ids = tuple(sorted([player1.identification, player2.identification]))
-                    if ids not in played:
-                        pairings.append((player1, player2))
-                        used.add(player1)
-                        used.add(player2)
-                        break
-        return pairings
-
-    def get_score_input(self, player):
-        while True:
-            try:
-                score = float(input(f"Score pour {player.first_name} {player.last_name} (0, 0.5 ou 1): "))
-                if score in (0, 0.5, 1):
-                    return score
-                else:
-                    print("Score invalide. Entrez 0, 0.5 ou 1.")
             except ValueError:
                 print("Entrée invalide. Entrez un nombre.")

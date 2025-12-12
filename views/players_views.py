@@ -28,7 +28,7 @@ class PlayersViews:
         """
         Affiche le sous-menu de gestion pour l'entité spécifiée (joueurs ou tournois).
         """
-        print(f"=== Gestion des joueurs===")
+        print("=== Gestion des joueurs===")
         print("1. Créer")
         print("2. Afficher")
         print("3. Charger")

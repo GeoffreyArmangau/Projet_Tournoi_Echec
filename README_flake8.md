@@ -17,7 +17,7 @@
 
 1. Vérifiez la conformité PEP8 et générez le rapport HTML :
    ```powershell
-   .venv\Scripts\python.exe -m flake8 --max-line-length=119 --format=html --htmldir=flake8_rapport .
+   .venv\Scripts\python.exe -m flake8 models/ views/ controllers/ --max-line-length=119 --format=html --htmldir=flake8_rapport .
    ```
 2. Ouvrez le rapport dans le dossier `flake8_rapport/index.html`.
 
